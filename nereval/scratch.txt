@@ -1,0 +1,31 @@
+===== OOV Evaluation Schema: full =====
+----- Evaluation Strategy: Standard -----
+***** Overall Score *****
+Total Precision: 91.30
+Total Recall:  91.38
+Total F1-Score: 91.34
+Total Count: 5648
+
+===== OOV Evaluation Schema: full =====
+----- Evaluation Strategy: unseen -----
+***** Overall Score *****
+Total Precision: 84.14
+Total Recall:  86.52
+Total F1-Score: 85.31
+Total Count: 2685
+
+===== OOV Evaluation Schema: token =====
+----- Evaluation Strategy: unseen -----
+***** Overall Score *****
+Total Precision: 85.20
+Total Recall:  87.00
+Total F1-Score: 86.09
+Total Count: 2600
+
+===== OOV Evaluation Schema: type =====
+----- Evaluation Strategy: unseen -----
+***** Overall Score *****
+Total Precision: 12.95
+Total Recall:  71.76
+Total F1-Score: 21.94
+Total Count: 85

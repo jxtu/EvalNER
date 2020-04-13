@@ -8,8 +8,8 @@ sys.path.append('../')
 from nerpy import SUPPORTED_ENCODINGS, CoNLLIngester, get_mention_encoder, score_prf, load_pickled_obj
 
 
-def score_conll(
-    reference_path: str, prediction_path: str, external_ents_path: str,
+def score_oov(
+    reference_path: str, prediction_path: str, schema: str, external_ents_path: str,
         encoding_name: str, eval_strategy: str, ignore_comments: bool
 ) -> None:
     encoder = get_mention_encoder(encoding_name)
@@ -24,9 +24,11 @@ def score_conll(
             prediction_file, os.path.basename(prediction_path)
         )
 
+    print(f'===== OOV Evaluation Schema: {schema} =====')
+
     if not external_ents_path:
         print(f'----- Evaluation Strategy: Standard -----')
-        res = score_prf(reference_docs, pred_docs)
+        res = score_prf(reference_docs, pred_docs, schema)
     else:
         ents_dict = load_pickled_obj(external_ents_path)
         print(f'----- Evaluation Strategy: {eval_strategy} -----')
@@ -37,7 +39,7 @@ def score_conll(
         else:
             external_ents = set()
             print(f'cannot identify eval strategy: {eval_strategy}, use standard evaluation')
-        res = score_prf(reference_docs, pred_docs, external_ents)
+        res = score_prf(reference_docs, pred_docs, schema, external_ents)
     print(res)
 
 
@@ -53,11 +55,13 @@ def main() -> None:
         "mention_encoding", help="mention encoding of files", choices=SUPPORTED_ENCODINGS
     )
     parser.add_argument(
-        "--external_ents", help="external entities pickle file", default=''
-    )
+        "-e", "--external_ents", help="external entities pickle file")
 
     parser.add_argument(
-        "--eval_strategy", help="evaluation strategy, e.g. seen or unseen"
+        "--schema", help="OOV evaluation schema, e.g. full or token", choices=['full', 'token', 'type']
+    )
+    parser.add_argument(
+        "-s", "--eval_strategy", help="evaluation strategy, e.g. seen or unseen"
     )
 
     parser.add_argument(
@@ -65,9 +69,10 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    score_conll(
+    score_oov(
         args.reference_file,
         args.prediction_file,
+        args.schema,
         args.external_ents,
         args.mention_encoding,
         args.eval_strategy,

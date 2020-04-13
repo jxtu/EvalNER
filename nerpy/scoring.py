@@ -8,14 +8,19 @@ from nerpy.document import Document, EntityType, Token, Mention
 
 TokenCounter = DefaultDict[EntityType, DefaultDict[str, "ScoringCounter"]]
 
-SCORING_MODE_MAPPING = {'seen', 'unseen'}
 
-
-def entity_filter(
+def full_entity_filter(
         not_kept: Set,
         doc: Document
 ) -> [Mention]:
     return [mention for mention in doc.mentions if (mention.tokenized_text(doc), mention.entity_type) not in not_kept]
+
+
+def token_entity_filter(
+        not_kept: Set,
+        doc: Document
+) -> [Mention]:
+    return [mention for mention in doc.mentions if mention.tokenized_text(doc) not in not_kept]
 
 
 @attrs(frozen=True)
@@ -74,6 +79,7 @@ class ScoringCounter:
 def score_prf(
     gold_docs: Iterable[Document],
     system_docs: Iterable[Document],
+    schema: str = 'full',
     external_ents: Set = set(),
     *,
     check_docids: bool = False,
@@ -97,8 +103,12 @@ def score_prf(
                 + ","
                 + str(system_doc.id)
             )
-        system_mentions = entity_filter(external_ents, system_doc)
-        gold_mentions = entity_filter(external_ents, gold_doc)
+        if schema == 'token':
+            filt_func = token_entity_filter
+        else:
+            filt_func = full_entity_filter
+        system_mentions = filt_func(external_ents, system_doc)
+        gold_mentions = filt_func(external_ents, gold_doc)
 
         # Update total and per entity precision counts
         for mention in system_mentions:
