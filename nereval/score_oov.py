@@ -3,14 +3,26 @@
 import argparse
 import os
 import sys
-sys.path.append('../')
 
-from nerpy import SUPPORTED_ENCODINGS, CoNLLIngester, get_mention_encoder, score_prf, load_pickled_obj
+sys.path.append("../")
+
+from nerpy import (
+    SUPPORTED_ENCODINGS,
+    CoNLLIngester,
+    get_mention_encoder,
+    score_prf,
+    load_pickled_obj,
+)
 
 
 def score_oov(
-    reference_path: str, prediction_path: str, schema: str, external_ents_path: str,
-        encoding_name: str, eval_strategy: str, ignore_comments: bool
+    reference_path: str,
+    prediction_path: str,
+    schema: str,
+    external_ents_path: str,
+    encoding_name: str,
+    eval_strategy: str,
+    ignore_comments: bool,
 ) -> None:
     encoder = get_mention_encoder(encoding_name)
 
@@ -24,21 +36,23 @@ def score_oov(
             prediction_file, os.path.basename(prediction_path)
         )
 
-    print(f'===== OOV Evaluation Schema: {schema} =====')
+    print(f"===== OOV Evaluation Schema: {schema} =====")
 
     if not external_ents_path:
-        print(f'----- Evaluation Strategy: Standard -----')
+        print(f"----- Evaluation Strategy: Standard -----")
         res = score_prf(reference_docs, pred_docs, schema)
     else:
         ents_dict = load_pickled_obj(external_ents_path)
-        print(f'----- Evaluation Strategy: {eval_strategy} -----')
-        if eval_strategy == 'seen':
-            external_ents = ents_dict['unseen']
-        elif eval_strategy == 'unseen':
-            external_ents = ents_dict['seen']
+        print(f"----- Evaluation Strategy: {eval_strategy} -----")
+        if eval_strategy == "seen":
+            external_ents = ents_dict["unseen"]
+        elif eval_strategy == "unseen":
+            external_ents = ents_dict["seen"]
         else:
             external_ents = set()
-            print(f'cannot identify eval strategy: {eval_strategy}, use standard evaluation')
+            print(
+                f"cannot identify eval strategy: {eval_strategy}, use standard evaluation"
+            )
         res = score_prf(reference_docs, pred_docs, schema, external_ents)
     print(res)
 
@@ -54,11 +68,12 @@ def main() -> None:
     parser.add_argument(
         "mention_encoding", help="mention encoding of files", choices=SUPPORTED_ENCODINGS
     )
-    parser.add_argument(
-        "-e", "--external_ents", help="external entities pickle file")
+    parser.add_argument("-e", "--external_ents", help="external entities pickle file")
 
     parser.add_argument(
-        "--schema", help="OOV evaluation schema, e.g. full or token", choices=['full', 'token', 'type']
+        "--schema",
+        help="OOV evaluation schema, e.g. full or token",
+        choices=["full", "token", "type"],
     )
     parser.add_argument(
         "-s", "--eval_strategy", help="evaluation strategy, e.g. seen or unseen"
