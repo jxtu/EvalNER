@@ -9,18 +9,18 @@ from nerpy.document import Document, EntityType, Token, Mention
 TokenCounter = DefaultDict[EntityType, DefaultDict[str, "ScoringCounter"]]
 
 
-def full_entity_filter(
-        not_kept: Set,
-        doc: Document
-) -> [Mention]:
-    return [mention for mention in doc.mentions if (mention.tokenized_text(doc), mention.entity_type) not in not_kept]
+def full_entity_filter(not_kept: Set, doc: Document) -> [Mention]:
+    return [
+        mention
+        for mention in doc.mentions
+        if (mention.tokenized_text(doc), mention.entity_type) not in not_kept
+    ]
 
 
-def token_entity_filter(
-        not_kept: Set,
-        doc: Document
-) -> [Mention]:
-    return [mention for mention in doc.mentions if mention.tokenized_text(doc) not in not_kept]
+def token_entity_filter(not_kept: Set, doc: Document) -> [Mention]:
+    return [
+        mention for mention in doc.mentions if mention.tokenized_text(doc) not in not_kept
+    ]
 
 
 @attrs(frozen=True)
@@ -79,7 +79,6 @@ class ScoringCounter:
 def score_prf(
     gold_docs: Iterable[Document],
     system_docs: Iterable[Document],
-    schema: str = 'full',
     external_ents: Set = set(),
     *,
     check_docids: bool = False,
@@ -103,7 +102,178 @@ def score_prf(
                 + ","
                 + str(system_doc.id)
             )
-        if schema == 'token':
+
+        system_mentions = token_entity_filter(external_ents, system_doc)
+        gold_mentions = token_entity_filter(external_ents, gold_doc)
+
+        # Update total and per entity precision counts
+        for mention in system_mentions:
+            if mention in gold_mentions:
+                precision_true_positives += 1
+                entity_counts[mention.entity_type].true_positives += 1
+            else:
+                entity_counts[mention.entity_type].false_positives += 1
+
+        # Update total and per entity recall counts
+        for mention in gold_mentions:
+            if mention in system_mentions:
+                recall_true_positives += 1
+            else:
+                entity_counts[mention.entity_type].false_negatives += 1
+
+        total_system_mentions += len(system_mentions)
+        total_gold_mentions += len(gold_mentions)
+
+    # Calculate total precision, recall and fscore
+    total_precision = (
+        precision_true_positives / total_system_mentions if total_system_mentions else 0.0
+    )
+    total_recall = (
+        recall_true_positives / total_gold_mentions if total_gold_mentions else 0.0
+    )
+    total_fscore = (
+        (2 * total_precision * total_recall) / (total_precision + total_recall)
+        if (total_precision + total_recall)
+        else 0.0
+    )
+
+    # Calculate per entity precision, recall and fscore
+    type_scores: Dict[EntityType, Score] = {}
+    type_counts: Dict[EntityType, int] = {}
+    for entity_type in entity_counts:
+        tp = entity_counts[entity_type].true_positives
+        fp = entity_counts[entity_type].false_positives
+        fn = entity_counts[entity_type].false_negatives
+
+        p = tp / (tp + fp) if (tp + fp) else 0.0
+        r = tp / (tp + fn) if (tp + fn) else 0.0
+        f = (2 * p * r) / (p + r) if (p + r) else 0.0
+
+        score = Score(p, r, f)
+        type_scores[entity_type] = score
+        type_counts[entity_type] = tp + fn
+
+    # Return scoring result
+    total_score = Score(total_precision, total_recall, total_fscore)
+    scoring_result = ScoringResult(
+        total_score, total_gold_mentions, type_scores, type_counts
+    )
+    return scoring_result
+
+
+def tce_score_prf(
+    gold_docs: Iterable[Document],
+    system_docs: Iterable[Document],
+    external_ents: Set = set(),
+    *,
+    check_docids: bool = False,
+) -> ScoringResult:
+
+    # Counters for total precision and recall
+    precision_true_positives = 0
+    recall_true_positives = 0
+    total_system_mentions = 0
+    total_gold_mentions = 0
+
+    # Counters for per entity precision and recall
+    entity_counts: DefaultDict[EntityType, ScoringCounter] = defaultdict(ScoringCounter)
+
+    # TODO: Correctly handle the case where number of system and gold docs do not match
+    for gold_doc, system_doc in zip(gold_docs, system_docs):
+        if check_docids and system_doc.id != gold_doc.id:
+            raise ValueError(
+                "Gold and system document IDs do not match: "
+                + str(gold_doc.id)
+                + ","
+                + str(system_doc.id)
+            )
+
+        system_mentions = token_entity_filter(external_ents, system_doc)
+        gold_mentions = token_entity_filter(external_ents, gold_doc)
+
+        # Update total and per entity precision counts
+        for mention in system_mentions:
+            if mention in gold_mentions:
+                precision_true_positives += 1
+                entity_counts[mention.entity_type].true_positives += 1
+            else:
+                entity_counts[mention.entity_type].false_positives += 1
+
+        # Update total and per entity recall counts
+        for mention in gold_mentions:
+            if mention in system_mentions:
+                recall_true_positives += 1
+            else:
+                entity_counts[mention.entity_type].false_negatives += 1
+
+        total_system_mentions += len(system_mentions)
+        total_gold_mentions += len(gold_mentions)
+
+    # Calculate total precision, recall and fscore
+    total_precision = (
+        precision_true_positives / total_system_mentions if total_system_mentions else 0.0
+    )
+    total_recall = (
+        recall_true_positives / total_gold_mentions if total_gold_mentions else 0.0
+    )
+    total_fscore = (
+        (2 * total_precision * total_recall) / (total_precision + total_recall)
+        if (total_precision + total_recall)
+        else 0.0
+    )
+
+    # Calculate per entity precision, recall and fscore
+    type_scores: Dict[EntityType, Score] = {}
+    type_counts: Dict[EntityType, int] = {}
+    for entity_type in entity_counts:
+        tp = entity_counts[entity_type].true_positives
+        fp = entity_counts[entity_type].false_positives
+        fn = entity_counts[entity_type].false_negatives
+
+        p = tp / (tp + fp) if (tp + fp) else 0.0
+        r = tp / (tp + fn) if (tp + fn) else 0.0
+        f = (2 * p * r) / (p + r) if (p + r) else 0.0
+
+        score = Score(p, r, f)
+        type_scores[entity_type] = score
+        type_counts[entity_type] = tp + fn
+
+    # Return scoring result
+    total_score = Score(total_precision, total_recall, total_fscore)
+    scoring_result = ScoringResult(
+        total_score, total_gold_mentions, type_scores, type_counts
+    )
+    return scoring_result
+
+
+def oov_score_prf(
+    gold_docs: Iterable[Document],
+    system_docs: Iterable[Document],
+    schema: str = "full",
+    external_ents: Set = set(),
+    *,
+    check_docids: bool = False,
+) -> ScoringResult:
+
+    # Counters for total precision and recall
+    precision_true_positives = 0
+    recall_true_positives = 0
+    total_system_mentions = 0
+    total_gold_mentions = 0
+
+    # Counters for per entity precision and recall
+    entity_counts: DefaultDict[EntityType, ScoringCounter] = defaultdict(ScoringCounter)
+
+    # TODO: Correctly handle the case where number of system and gold docs do not match
+    for gold_doc, system_doc in zip(gold_docs, system_docs):
+        if check_docids and system_doc.id != gold_doc.id:
+            raise ValueError(
+                "Gold and system document IDs do not match: "
+                + str(gold_doc.id)
+                + ","
+                + str(system_doc.id)
+            )
+        if schema == "token":
             filt_func = token_entity_filter
         else:
             filt_func = full_entity_filter
@@ -159,7 +329,9 @@ def score_prf(
 
     # Return scoring result
     total_score = Score(total_precision, total_recall, total_fscore)
-    scoring_result = ScoringResult(total_score, total_gold_mentions, type_scores, type_counts)
+    scoring_result = ScoringResult(
+        total_score, total_gold_mentions, type_scores, type_counts
+    )
     return scoring_result
 
 

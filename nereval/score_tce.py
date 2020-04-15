@@ -10,15 +10,14 @@ from nerpy import (
     SUPPORTED_ENCODINGS,
     CoNLLIngester,
     get_mention_encoder,
-    oov_score_prf,
+    tce_score_prf,
     load_pickled_obj,
 )
 
 
-def score_oov(
+def score_tce(
     reference_path: str,
     prediction_path: str,
-    schema: str,
     external_ents_path: str,
     encoding_name: str,
     eval_strategy: str,
@@ -36,24 +35,24 @@ def score_oov(
             prediction_file, os.path.basename(prediction_path)
         )
 
-    print(f"===== OOV Evaluation Schema: {schema} =====")
+    print(f"===== TCE Evaluation =====")
 
     if not external_ents_path:
         print(f"----- Evaluation Strategy: Standard -----")
-        res = oov_score_prf(reference_docs, pred_docs, schema)
+        res = tce_score_prf(reference_docs, pred_docs)
     else:
         ents_dict = load_pickled_obj(external_ents_path)
         print(f"----- Evaluation Strategy: {eval_strategy} -----")
-        if eval_strategy == "seen":
-            external_ents = ents_dict["unseen"]
-        elif eval_strategy == "unseen":
-            external_ents = ents_dict["seen"]
+        if eval_strategy == "ambi":
+            external_ents = ents_dict["unambi"]
+        elif eval_strategy == "unambi":
+            external_ents = ents_dict["ambi"]
         else:
             external_ents = set()
             print(
                 f"cannot identify eval strategy: {eval_strategy}, use standard evaluation"
             )
-        res = oov_score_prf(reference_docs, pred_docs, schema, external_ents)
+        res = tce_score_prf(reference_docs, pred_docs, external_ents)
     print(res)
 
 
@@ -71,15 +70,10 @@ def main() -> None:
     parser.add_argument("-e", "--external_ents", help="external entities pickle file")
 
     parser.add_argument(
-        "--schema",
-        help="OOV evaluation schema, e.g. full or token",
-        choices=["full", "token", "type"],
-    )
-    parser.add_argument(
         "-s",
         "--eval_strategy",
-        help="evaluation strategy, e.g. seen or unseen",
-        choices=["seen", "unseen"],
+        help="evaluation strategy, e.g. ambi or unambi",
+        choices=["ambi", "unambi"],
     )
 
     parser.add_argument(
@@ -87,10 +81,9 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    score_oov(
+    score_tce(
         args.reference_file,
         args.prediction_file,
-        args.schema,
         args.external_ents,
         args.mention_encoding,
         args.eval_strategy,

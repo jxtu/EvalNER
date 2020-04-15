@@ -2,7 +2,8 @@
 
 import argparse
 import sys
-sys.path.append('../')
+
+sys.path.append("../")
 from nerpy import CoNLLIngester, get_mention_encoder
 
 
