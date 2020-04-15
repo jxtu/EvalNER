@@ -3,6 +3,7 @@
 import argparse
 import os
 import sys
+from typing import Set, Dict, Union, List
 
 sys.path.append("../")
 
@@ -13,6 +14,16 @@ from nerpy import (
     tce_score_prf,
     load_pickled_obj,
 )
+
+
+def get_set_complement(ents_dict: Dict[str, Set], set_key: Union[str, List]) -> Set:
+    complement = set()
+    if isinstance(set_key, str):
+        set_key = [set_key]
+    for k in ents_dict:
+        if k not in set_key:
+            complement.update(ents_dict[k])
+    return complement
 
 
 def score_tce(
@@ -43,10 +54,20 @@ def score_tce(
     else:
         ents_dict = load_pickled_obj(external_ents_path)
         print(f"----- Evaluation Strategy: {eval_strategy} -----")
-        if eval_strategy == "ambi":
-            external_ents = ents_dict["unambi"]
+        if eval_strategy == "seen_ambi":
+            external_ents = get_set_complement(ents_dict, "seen_ambi")
+        elif eval_strategy == "seen_unambi":
+            external_ents = get_set_complement(ents_dict, "seen_unambi")
+        elif eval_strategy == "unseen_ambi":
+            external_ents = get_set_complement(ents_dict, "unseen_ambi")
+        elif eval_strategy == "unseen_unambi":
+            external_ents = get_set_complement(ents_dict, "unseen_unambi")
+        elif eval_strategy == "ambi":
+            external_ents = get_set_complement(ents_dict, ["seen_ambi", "unseen_ambi"])
         elif eval_strategy == "unambi":
-            external_ents = ents_dict["ambi"]
+            external_ents = get_set_complement(
+                ents_dict, ["seen_unambi", "unseen_unambi"]
+            )
         else:
             external_ents = set()
             print(
@@ -72,8 +93,15 @@ def main() -> None:
     parser.add_argument(
         "-s",
         "--eval_strategy",
-        help="evaluation strategy, e.g. ambi or unambi",
-        choices=["ambi", "unambi"],
+        help="evaluation strategy",
+        choices=[
+            "ambi",
+            "unambi",
+            "seen_ambi",
+            "unseen_ambi",
+            "seen_unambi",
+            "unseen_unambi",
+        ],
     )
 
     parser.add_argument(

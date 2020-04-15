@@ -19,3 +19,6 @@ python score_oov.py ../data/conll2003/test.txt ../data/preds/wordlstm_charcnn_cr
 # TCE evaluation
 python score_tce.py ../data/conll2003/test.txt ../data/preds/wordlstm_charcnn_crf.pred BIO \
                     -e ../data/ents/TCE.pkl -s ambi
+
+python score_tce.py ../data/conll2003/test.txt ../data/preds/wordlstm_charcnn_crf.pred BIO \
+                    -e ../data/ents/TCE.pkl -s unseen_ambi
