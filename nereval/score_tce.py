@@ -46,7 +46,7 @@ def score_tce(
             prediction_file, os.path.basename(prediction_path)
         )
 
-    print(f"===== TCE Evaluation =====")
+    print(f"===== TCE Evaluation Schema: {None} =====")
 
     if not external_ents_path:
         print(f"----- Evaluation Strategy: Standard -----")
