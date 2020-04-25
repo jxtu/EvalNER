@@ -1,4 +1,5 @@
 from typing import List, NamedTuple
+import argparse
 
 
 class EvalMeta(NamedTuple):
@@ -50,3 +51,17 @@ class EvalParser(object):
         f1 = lines[2].strip().split(" ")[-1]
         count = lines[3].strip().split(" ")[-1]
         return TypeResult(p, r, f1, count, e_type)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("result_file", help="result file from EvalNER")
+    args = parser.parse_args()
+    eval_parser = EvalParser(args.result_file)
+    print(eval_parser.meta)
+    for t in eval_parser.performance:
+        print(t)
+
+
+if __name__ == "__main__":
+    main()
