@@ -43,7 +43,7 @@ class EvalResult:
     performance: Performance = attr.ib()
 
     @classmethod
-    def from_file(cls, result_input: str):
+    def from_file(cls, result_input: str) -> "EvalResult":
         with open(result_input, "r") as f:
             lines = f.readlines()
         meta = cls._get_meta(lines)
@@ -56,7 +56,7 @@ class EvalResult:
         return cls(meta, performance)
 
     @staticmethod
-    def _get_meta(lines: List[str]):
+    def _get_meta(lines: List[str]) -> "EvalMeta":
         parts = lines[0].split(" ")
         eval_type = parts[1]
         eval_schema = parts[-2]
@@ -64,7 +64,7 @@ class EvalResult:
         return EvalMeta(eval_type, eval_schema, eval_strategy)
 
     @staticmethod
-    def _parse_full(lines: List[str], e_type: str):
+    def _parse_full(lines: List[str], e_type: str) -> "TypeResult":
         p = lines[0].strip().split(" ")[-1]
         r = lines[1].strip().split(" ")[-1]
         f1 = lines[2].strip().split(" ")[-1]
@@ -72,7 +72,7 @@ class EvalResult:
         return TypeResult(p, r, f1, count, e_type)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("result_file", help="result file from EvalNER")
     args = parser.parse_args()
