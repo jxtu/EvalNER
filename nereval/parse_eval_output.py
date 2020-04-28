@@ -1,40 +1,59 @@
-from typing import List, NamedTuple
+from typing import List
+import attr
 import argparse
 
 
-class EvalMeta(NamedTuple):
-    type: str
-    schema: str
-    strategy: str
+@attr.s(frozen=True)
+class EvalMeta:
+    type: str = attr.ib()
+    schema: str = attr.ib()
+    strategy: str = attr.ib()
 
 
-class TypeResult(NamedTuple):
-    precision: str
-    recall: str
-    fscore: str
-    entityCount: str
-    entityType: str
+@attr.s(frozen=True)
+class TypeResult:
+    precision: str = attr.ib()
+    recall: str = attr.ib()
+    fscore: str = attr.ib()
+    entityCount: str = attr.ib()
+    entityType: str = attr.ib()
 
 
-class Performance(NamedTuple):
-    LOC: NamedTuple
-    MISC: NamedTuple
-    ORG: NamedTuple
-    PER: NamedTuple
-    ALL: NamedTuple
+@attr.s(frozen=True)
+class Performance:
+    LOC: TypeResult = attr.ib()
+    MISC: TypeResult = attr.ib()
+    ORG: TypeResult = attr.ib()
+    PER: TypeResult = attr.ib()
+    ALL: TypeResult = attr.ib()
+
+    def __str__(self):
+        lines = list()
+        lines.append(self.LOC.__str__())
+        lines.append(self.MISC.__str__())
+        lines.append(self.ORG.__str__())
+        lines.append(self.PER.__str__())
+        lines.append(self.ALL.__str__())
+        return "\n".join(lines)
 
 
-class EvalParser(object):
-    def __init__(self, result_input: str):
+@attr.s(auto_attribs=True)
+class EvalResult:
+    meta: EvalMeta = attr.ib()
+    performance: Performance = attr.ib()
+
+    @classmethod
+    def from_file(cls, result_input: str):
         with open(result_input, "r") as f:
-            result_lines = f.readlines()
-        self.meta = self._get_meta(result_lines[:2])
-        loc_res = self._parse_full(result_lines[4:8], "LOC")
-        misc_res = self._parse_full(result_lines[10:14], "MISC")
-        org_res = self._parse_full(result_lines[16:20], "ORG")
-        per_res = self._parse_full(result_lines[22:26], "PER")
-        all_res = self._parse_full(result_lines[28:32], "ALL")
-        self.performance = Performance(loc_res, misc_res, org_res, per_res, all_res)
+            lines = f.readlines()
+        meta = cls._get_meta(lines)
+        loc_res = cls._parse_full(lines[4:8], "LOC")
+        misc_res = cls._parse_full(lines[10:14], "MISC")
+        org_res = cls._parse_full(lines[16:20], "ORG")
+        per_res = cls._parse_full(lines[22:26], "PER")
+        all_res = cls._parse_full(lines[28:32], "ALL")
+        performance = Performance(loc_res, misc_res, org_res, per_res, all_res)
+        return cls(meta, performance)
 
     @staticmethod
     def _get_meta(lines: List[str]):
@@ -57,10 +76,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("result_file", help="result file from EvalNER")
     args = parser.parse_args()
-    eval_parser = EvalParser(args.result_file)
-    print(eval_parser.meta)
-    for t in eval_parser.performance:
-        print(t)
+    eval_result = EvalResult.from_file(args.result_file)
+    print(eval_result.meta)
+    print(eval_result.performance)
 
 
 if __name__ == "__main__":
