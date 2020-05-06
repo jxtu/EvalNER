@@ -4,6 +4,10 @@ import argparse
 import os
 import time
 
+import sys
+
+sys.path.append("../")
+
 from nerpy import (
     SUPPORTED_ENCODINGS,
     CoNLLIngester,

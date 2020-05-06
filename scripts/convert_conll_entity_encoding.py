@@ -30,7 +30,9 @@ def convert_conll(
                 tokens = sentence.tokens
                 labels = output_mention_encoding.encode_mentions(sentence, mentions)
                 for token, label in zip(tokens, labels):
-                    line = " ".join([token.text, "None", "None", label])  # this is for token without postag
+                    line = " ".join(
+                        [token.text, "None", "None", label]
+                    )  # this is for token without postag
                     # line = " ".join([token.text, token.pos_tag, "None", label])
                     output_file.write(line + "\n")
                 output_file.write("\n")
