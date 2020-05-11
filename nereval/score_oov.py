@@ -12,7 +12,10 @@ from nerpy import (
     get_mention_encoder,
     oov_score_prf,
     load_pickled_obj,
+    ScoringResult,
 )
+
+from nereval.convert_latex import result2latex
 
 
 def score_oov(
@@ -23,7 +26,7 @@ def score_oov(
     encoding_name: str,
     eval_strategy: str,
     ignore_comments: bool,
-) -> None:
+) -> "ScoringResult":
     encoder = get_mention_encoder(encoding_name)
 
     with open(reference_path, encoding="utf8") as reference_file:
@@ -55,6 +58,7 @@ def score_oov(
             )
         res = oov_score_prf(reference_docs, pred_docs, schema, external_ents)
     print(res)
+    return res
 
 
 def main() -> None:
@@ -87,7 +91,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    score_oov(
+    res = score_oov(
         args.reference_file,
         args.prediction_file,
         args.schema,
@@ -96,6 +100,8 @@ def main() -> None:
         args.eval_strategy,
         args.ignore_comments,
     )
+    # print("\n\n", result2latex(res))
+    # return result2latex(res)
 
 
 if __name__ == "__main__":

@@ -36,7 +36,7 @@ def type_entity_dist(docs: [Document]) -> Set:
 def extract_oov(
     strategy: str, train_docs: [Document], test_docs: [Document], output_path: str
 ) -> None:
-    if strategy is "full":
+    if strategy == "full":
         train_ents = full_entity_dist(train_docs)
         test_ents = full_entity_dist(test_docs)
         unseen = test_ents - train_ents
