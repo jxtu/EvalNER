@@ -15,8 +15,6 @@ from nerpy import (
     ScoringResult,
 )
 
-from nereval.convert_latex import result2latex
-
 
 def score_oov(
     reference_path: str,
@@ -100,8 +98,6 @@ def main() -> None:
         args.eval_strategy,
         args.ignore_comments,
     )
-    # print("\n\n", result2latex(res))
-    # return result2latex(res)
 
 
 if __name__ == "__main__":

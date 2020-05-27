@@ -5,6 +5,8 @@ data/
 playground.py
 readme.txt
 nereval/convert_latex.py
+nereval/onto2latex.py
+nereval/sentence2doc.py
 
 
 

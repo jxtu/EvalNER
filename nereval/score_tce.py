@@ -13,6 +13,7 @@ from nerpy import (
     get_mention_encoder,
     tce_score_prf,
     load_pickled_obj,
+    ScoringResult,
 )
 
 
@@ -33,7 +34,7 @@ def score_tce(
     encoding_name: str,
     eval_strategy: str,
     ignore_comments: bool,
-) -> None:
+) -> "ScoringResult":
     encoder = get_mention_encoder(encoding_name)
 
     with open(reference_path, encoding="utf8") as reference_file:
@@ -75,6 +76,7 @@ def score_tce(
             )
         res = tce_score_prf(reference_docs, pred_docs, external_ents)
     print(res)
+    return res
 
 
 def main() -> None:

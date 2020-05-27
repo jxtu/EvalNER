@@ -156,11 +156,11 @@ class EvalResult:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "dataset", help="result file from EvalNER", choices=["conll2003", "ontonotes"]
+        "dataset", help="result file from EvalNER", choices=["conll-english", "ontonotes"]
     )
     parser.add_argument("result_file", help="result file from EvalNER")
     args = parser.parse_args()
-    if args.dataset == "conll2003":
+    if args.dataset == "conll-english":
         eval_result = EvalResult.from_conll_file(args.result_file)
     else:
         eval_result = EvalResult.from_onto_file(args.result_file)

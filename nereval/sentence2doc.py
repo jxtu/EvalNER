@@ -4,7 +4,7 @@ import argparse
 def sentence2doc(conll_file, out_file):
     doc_start = "-DOCSTART- O"
     with open(out_file, "w") as wf:
-        with open(conll_file, 'r') as f:
+        with open(conll_file, "r") as f:
             wf.write(doc_start + "\n\n")
             for line in f:
                 if line == "\n":
@@ -13,7 +13,7 @@ def sentence2doc(conll_file, out_file):
                     wf.write(line)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("conll_file")
     parser.add_argument("out_file")
