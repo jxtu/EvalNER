@@ -1,6 +1,6 @@
 # EvalNER
 This is the code base for the EMNLP 2020 submission: _Evaluating Tough Mentions to Better Understand NER Performance_.
-
+All scripts should be run from the directory where the script locates. 
 ## Data Preparation
 NER datasets and corresponding prediction file on its test set. All files need to be of CoNLL format, i.e. set your directory like this:
 ```
