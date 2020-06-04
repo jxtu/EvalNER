@@ -1,0 +1,5 @@
+attrs==19.3.0
+immutabledict==1.0.0
+numpy==1.18.5
+regex==2020.5.14
+quickvec@https://github.com/ConstantineLignos/quickvec/archive/master.zip

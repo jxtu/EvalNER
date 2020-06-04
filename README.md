@@ -1,6 +1,6 @@
 # EvalNER
 This is the code base for the EMNLP 2020 submission: _Evaluating Tough Mentions to Better Understand NER Performance_.
-All scripts should be run from the directory where the script locates. 
+All scripts should be run from the directory where the script locates. All scripts mentioned can be found in `nereval/`. `demo.sh` is provided to demonstrate the whole evaluation process.
 ## Data Preparation
 NER datasets and corresponding prediction file on its test set. All files need to be of CoNLL format, i.e. set your directory like this:
 ```
@@ -11,7 +11,6 @@ NER datasets and corresponding prediction file on its test set. All files need t
 │   │   ├── test.txt
 │   │   └── pred.txt        # prediction file on test.txt
 ``` 
-
 ## Entity Mentions Subsets
 Unseen/TCM subsets need to be generated first before running the scorer.
 - Run `ingest_conll.py` to get pickled `train.txt` and `test.txt`. 
