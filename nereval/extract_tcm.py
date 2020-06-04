@@ -47,7 +47,7 @@ def extract_tce(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("test_pkl", help="test docs pickle file")
-    parser.add_argument("oov_pkl", help="token-level OOV entities pickle file")
+    parser.add_argument("oov_pkl", help="Unseen-tokens mentions pickle file")
     parser.add_argument("output", help="output entities pickle file")
     args = parser.parse_args()
     test_docs = load_pickled_documents(args.test_pkl)

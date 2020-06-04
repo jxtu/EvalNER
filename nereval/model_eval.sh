@@ -26,11 +26,11 @@ python score_oov.py ../data/"${CORPUS}"/test.txt ../data/experiments_preds/"${CO
 echo "TCE Evaluation..."
 # TCE evaluation
 # schema: ambi
-python score_tce.py ../data/"${CORPUS}"/test.txt ../data/experiments_preds/"${CORPUS}"/"${MODEL}".pred BIO \
+python score_tcm.py ../data/"${CORPUS}"/test.txt ../data/experiments_preds/"${CORPUS}"/"${MODEL}".pred BIO \
                     -e ../data/ents/"${CORPUS}"/TCE.pkl -s ambi > ../data/output/"${CORPUS}"/"${MODEL}"/tce_ambi.txt
 # schema: seen_ambi
-python score_tce.py ../data/"${CORPUS}"/test.txt ../data/experiments_preds/"${CORPUS}"/"${MODEL}".pred BIO \
+python score_tcm.py ../data/"${CORPUS}"/test.txt ../data/experiments_preds/"${CORPUS}"/"${MODEL}".pred BIO \
                     -e ../data/ents/"${CORPUS}"/TCE.pkl -s seen_ambi > ../data/output/"${CORPUS}"/"${MODEL}"/tce_seen_ambi.txt
 # schema: unseen_ambi
-python score_tce.py ../data/"${CORPUS}"/test.txt ../data/experiments_preds/"${CORPUS}"/"${MODEL}".pred BIO \
+python score_tcm.py ../data/"${CORPUS}"/test.txt ../data/experiments_preds/"${CORPUS}"/"${MODEL}".pred BIO \
                     -e ../data/ents/"${CORPUS}"/TCE.pkl -s unseen_ambi > ../data/output/"${CORPUS}"/"${MODEL}"/tce_unseen_ambi.txt

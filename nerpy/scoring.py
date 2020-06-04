@@ -249,7 +249,7 @@ def tce_score_prf(
 def oov_score_prf(
     gold_docs: Iterable[Document],
     system_docs: Iterable[Document],
-    schema: str = "full",
+    schema: str = "any",
     external_ents: Set = set(),
     *,
     check_docids: bool = False,
@@ -273,7 +273,7 @@ def oov_score_prf(
                 + ","
                 + str(system_doc.id)
             )
-        if schema == "token":
+        if schema == "tokens":
             filt_func = token_entity_filter
         else:
             filt_func = full_entity_filter

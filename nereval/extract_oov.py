@@ -36,12 +36,12 @@ def type_entity_dist(docs: [Document]) -> Set:
 def extract_oov(
     strategy: str, train_docs: [Document], test_docs: [Document], output_path: str
 ) -> None:
-    if strategy == "full":
+    if strategy == "any":
         train_ents = full_entity_dist(train_docs)
         test_ents = full_entity_dist(test_docs)
         unseen = test_ents - train_ents
         seen = test_ents - unseen
-    elif strategy == "token":
+    elif strategy == "tokens":
         train_ents = token_entity_dist(train_docs)
         test_ents = token_entity_dist(test_docs)
         unseen = test_ents - train_ents
@@ -62,7 +62,7 @@ def extract_oov(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "strategy", help="oov comparison strategy", choices=["full", "token", "type"]
+        "strategy", help="unseen mention subsets", choices=["any", "tokens", "type"]
     )
     parser.add_argument("train_pkl", help="training docs pickle file")
     parser.add_argument("test_pkl", help="test docs pickle file")
@@ -72,7 +72,7 @@ def main() -> None:
     print(f"Loading data from {args.train_pkl}")
     test_docs = load_pickled_documents(args.test_pkl)
     print(f"Loading data from {args.test_pkl}")
-    print(f"Using strategy: {args.strategy}")
+    print(f"Using Unseen mention subset: {args.strategy}")
     extract_oov(args.strategy, train_docs, test_docs, args.output)
     print(f"Writing output to {args.output}")
 

@@ -75,7 +75,7 @@ def main() -> None:
     parser.add_argument(
         "--schema",
         help="OOV evaluation schema, e.g. full or token",
-        choices=["full", "token", "type"],
+        choices=["any", "tokens", "type"],
     )
     parser.add_argument(
         "-s",
